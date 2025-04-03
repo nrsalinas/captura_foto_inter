@@ -78,6 +78,8 @@ parts = [
 	'pulmón',
 ]
 
+sites = ['Aures', 'Trinitaria', 'Jardín Botánico de Bogotá']
+
 id_observaciones = []
 
 st.markdown("""
@@ -97,10 +99,13 @@ Insertar las observaciones en la forma abajo. Una vez termine de digitar los dat
 # This doesn't work in Linux -> :blue-background[:red[**Enviar**]] 
 
 def validate():
+	"""
+	Rutina principal de validadción de información del formulario.
+	"""
 
 	if st.session_state.date is None:
 		#st.info('Error: Falta fecha de observación.', icon="🔥")
-		st.session_state.errors += 'Falta fecha de observación (obligatorio).\n\n'
+		st.session_state.errors += 'La fecha de observación es un campo obligatorio.\n\n'
 
 	if st.session_state.photo:
 		if len(st.session_state.photo.name) < 5:
@@ -108,8 +113,24 @@ def validate():
 			st.session_state.errors += "El nombre de la fotografía es sospechosamente pequeño.\n\n"
 		
 	else:
-		st.session_state.errors += "No hay fotografía adjudicada a la observación.\n"
+		st.session_state.errors += "No hay fotografía adjudicada a la observación.\n\n"
 
+	if st.session_state.observer is None:
+		st.session_state.errors += 'El nombre del observador es un campo obligatorio.\n\n'
+
+	if st.session_state.digitizer is None:
+		st.session_state.errors += 'El digitador es un campo obligatorio.\n\n'
+
+	if st.session_state.inter is None:
+		st.session_state.errors += 'El tipo de interacción es un campo obligatorio.\n\n'
+
+	if st.session_state.part is None:
+		st.session_state.errors += 'El órgano sujeto de interacción es un campo obligatorio.\n\n'
+
+	if st.session_state.site is None \
+		and (st.session_state.lon is None or st.session_state.lat is None):
+
+		st.session_state.errors += "Una ubicación geográfica es obligatoria, ya sea 'Sitio' o coordenadas geográficas.\n\n"
 
 	st.session_state.submitted = False
 
@@ -130,6 +151,7 @@ def submit():
 		st.session_state.part,
 		st.session_state.lat,
 		st.session_state.lon,
+		st.session_state.site,
 		now.strftime('%Y-%m-%d %H:%M:%S'),
 		st.session_state.digitizer,
 	]
@@ -228,11 +250,22 @@ with st.form(
 		max_value=-73.99194,
 	)
 
+	st.selectbox(
+		"Sitio", 
+		sites, 
+		index=None, 
+		key='site',
+		placeholder="Seleccione un sitio",
+		help='Sitio (parque, localidad, etc.) donde se realizón la observación.'
+	)
+
+
 	st.form_submit_button('Validar', on_click=validate)
 
 pretty_data = st.empty()
 
 if len(st.session_state.errors) > 0:
+	st.session_state.errors = "# Error\n\n#" + st.session_state.errors
 	st.info(st.session_state.errors)
 
 
@@ -271,6 +304,9 @@ else:
 
 		if st.session_state.lon:
 			st.write(f"Longitud: '{st.session_state.lon}'")
+
+		if st.session_state.site:
+			st.write(f"Sitio: '{st.session_state.site}'")
 
 
 	st.markdown("""Si los datos arriba son correctos, presione el botón :red[**Guardar**] para enviar los datos.""")
