@@ -32,14 +32,23 @@ if 'data' not in st.session_state:
 if 'submitted' not in st.session_state:
 	st.session_state.submitted = False
 
-
-observers = [
-	'Juliana Zuluaga',
-	'Carlos Vargas',
-	'Nelson Salinas'
-	]
+##########     Object lists    ##############
+listas = pd.read_csv("Lista_categorias.csv")
+plants = listas.query('Plantas.notna()').Plantas.sort_values().to_list()
+birds = listas.query('Aves.notna()').Aves.to_list()
+insects = listas.query('Insectos.notna()').Insectos.to_list()
+animals = sorted(birds + insects)
+observers = listas.query('Observadores.notna()').Observadores.to_list()
+sites = listas.query('Sitios.notna()').Sitios.to_list()
 
 digitizers = ['Angela', 'Nelson']
+
+#observers = [
+#	'Juliana Zuluaga',
+#	'Carlos Vargas',
+#	'Nelson Salinas'
+#	]
+
 
 interacts = [
 	'Alelopatía negativa con',
@@ -77,8 +86,6 @@ parts = [
 	'huevo',
 	'pulmón',
 ]
-
-sites = ['Aures', 'Trinitaria', 'Jardín Botánico de Bogotá']
 
 id_observaciones = []
 
@@ -197,16 +204,19 @@ with st.form(
 		help='Persona que sistematiza la fotografía'
 	)
 
-	st.text_input(
+	st.selectbox(
 		"Especie de planta", 
+		plants,
+		index=None, 
 		key="sp1",
 		placeholder='Digite el nombre de la planta',
-		help="Nombre científico (sin autores) de la planta registrada en la fotografía"
-
+		help="Nombre científico (sin autores) de la planta registrada en la fotografía",
 	)
 
-	st.text_input(
+	st.selectbox(
 		"Especie de animal", 
+		animals,
+		index = None,	
 		key="sp2",
 		placeholder='Digite el nombre del animal',
 		help="Nombre científico (sin autores) del animal registrado en la fotografía"
@@ -256,7 +266,7 @@ with st.form(
 		index=None, 
 		key='site',
 		placeholder="Seleccione un sitio",
-		help='Sitio (parque, localidad, etc.) donde se realizón la observación.'
+		help='Sitio (parque, localidad, etc.) donde se realizó la observación.'
 	)
 
 
