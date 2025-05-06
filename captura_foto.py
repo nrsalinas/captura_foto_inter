@@ -134,10 +134,12 @@ def validate():
 		st.session_state.errors += 'El digitador es un campo obligatorio.\n\n'
 
 	if st.session_state.sp1 is None:
-		st.session_state.errors += 'El nombre de la especie 1 es obligatorio.\n\n'
+		if st.session_state.sp1alt is None:
+			st.session_state.errors += 'El nombre de la especie 1 es obligatorio.\n\n'
 
 	if st.session_state.sp2 is None:
-		st.session_state.errors += 'El nombre de la especie 2 es obligatorio.\n\n'
+		if st.session_state.sp2alt is None:
+			st.session_state.errors += 'El nombre de la especie 2 es obligatorio.\n\n'
 
 	if st.session_state.inter is None:
 		st.session_state.errors += 'El tipo de interacción es un campo obligatorio.\n\n'
@@ -163,8 +165,19 @@ def submit():
 		str(st.session_state.date),
 		st.session_state.photo.name,
 		st.session_state.observer,
-		st.session_state.sp1,
-		st.session_state.sp2,
+	]
+
+	if st.session_state.sp1:
+		row.append(st.session_state.sp1)
+	else:
+		row.append(st.session_state.sp1alt)
+		
+	if st.session_state.sp2:
+		row.append(st.session_state.sp2)
+	else:
+		row.append(st.session_state.sp2alt)
+
+	row += [
 		st.session_state.inter,
 		st.session_state.part,
 		st.session_state.lat,
@@ -232,6 +245,13 @@ with st.form(
 		help="Nombre científico (sin autores) de la especie 1",
 	)
 
+	st.text_input(
+		"Especie 1 (si no está en el listado de arriba)",
+		key="sp1alt",
+		placeholder='Digite el nombre científico',
+		help="Si el nombre científico de la especie 1 no está en la lista de arriba, digitelo aquí. Verifique la ortografía en una base de datos apropiada (por ejemplo, GBIF).",
+	)
+
 	st.selectbox(
 		"Especie 2", 
 		taxa,
@@ -239,6 +259,13 @@ with st.form(
 		key="sp2",
 		placeholder='Digite el nombre científico',
 		help="Nombre científico (sin autores) de la especie 2"
+	)
+
+	st.text_input(
+		"Especie 2 (si no está en el listado de arriba)",
+		key="sp2alt",
+		placeholder='Digite el nombre científico',
+		help="Si el nombre científico de la especie 2 no está en la lista de arriba, digitelo aquí.  Verifique la ortografía en una base de datos apropiada (por ejemplo, GBIF),",
 	)
 
 	st.selectbox(
@@ -266,7 +293,8 @@ with st.form(
 		placeholder="Latitud",
 		help='Latitud de la observación en formato decimal (e.g., 3.09284)',
 		max_value=4.838990,
-		min_value=3.725902
+		min_value=3.725902,
+		step=0.00001
 	)
 
 	st.number_input(
@@ -277,6 +305,7 @@ with st.form(
 		help='Longitud de la observación en formato decimal (e.g., -77.2360184)',
 		min_value=-74.2248,
 		max_value=-73.99194,
+		step=0.00001
 	)
 
 	st.selectbox(
