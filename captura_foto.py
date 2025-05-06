@@ -37,7 +37,8 @@ listas = pd.read_csv("Lista_categorias.csv")
 plants = listas.query('Plantas.notna()').Plantas.sort_values().to_list()
 birds = listas.query('Aves.notna()').Aves.to_list()
 insects = listas.query('Insectos.notna()').Insectos.to_list()
-animals = sorted(birds + insects)
+#animals = sorted(birds + insects)
+taxa = sorted(birds + insects + plants)
 observers = listas.query('Observadores.notna()').Observadores.to_list()
 sites = listas.query('Sitios.notna()').Sitios.to_list()
 
@@ -110,11 +111,15 @@ def validate():
 	Rutina principal de validadción de información del formulario.
 	"""
 
+	if st.secrets.token != st.session_state.token:
+		st.session_state.errors += 'El token de autenticación es incorrecto.\n\n'
+
 	if st.session_state.date is None:
 		#st.info('Error: Falta fecha de observación.', icon="🔥")
 		st.session_state.errors += 'La fecha de observación es un campo obligatorio.\n\n'
 
 	if st.session_state.photo:
+		
 		if len(st.session_state.photo.name) < 5:
 			#st.info("El nombre de la fotografía es sospechosamente pequeño.")
 			st.session_state.errors += "El nombre de la fotografía es sospechosamente pequeño.\n\n"
@@ -127,6 +132,12 @@ def validate():
 
 	if st.session_state.digitizer is None:
 		st.session_state.errors += 'El digitador es un campo obligatorio.\n\n'
+
+	if st.session_state.sp1 is None:
+		st.session_state.errors += 'El nombre de la especie 1 es obligatorio.\n\n'
+
+	if st.session_state.sp2 is None:
+		st.session_state.errors += 'El nombre de la especie 2 es obligatorio.\n\n'
 
 	if st.session_state.inter is None:
 		st.session_state.errors += 'El tipo de interacción es un campo obligatorio.\n\n'
@@ -173,6 +184,14 @@ with st.form(
 	clear_on_submit=True,
 	):
 
+	st.text_input(
+		"Token de autenticación",
+		help="Token de validación de usuario",
+		placeholder='Digite el token',
+		value=None,
+		key="token"
+	)
+
 	st.date_input(
 		"Fecha",
 		help="Fecha en la cual fue realizada la observación.",
@@ -205,21 +224,21 @@ with st.form(
 	)
 
 	st.selectbox(
-		"Especie de planta", 
-		plants,
+		"Especie 1", 
+		taxa,
 		index=None, 
 		key="sp1",
-		placeholder='Digite el nombre de la planta',
-		help="Nombre científico (sin autores) de la planta registrada en la fotografía",
+		placeholder='Digite el nombre científico',
+		help="Nombre científico (sin autores) de la especie 1",
 	)
 
 	st.selectbox(
-		"Especie de animal", 
-		animals,
+		"Especie 2", 
+		taxa,
 		index = None,	
 		key="sp2",
-		placeholder='Digite el nombre del animal',
-		help="Nombre científico (sin autores) del animal registrado en la fotografía"
+		placeholder='Digite el nombre científico',
+		help="Nombre científico (sin autores) de la especie 2"
 	)
 
 	st.selectbox(
@@ -236,7 +255,7 @@ with st.form(
 		parts, 
 		index=None, 
 		key='part',
-		placeholder="Seleccione una órgano",
+		placeholder="Seleccione un órgano",
 		help='Órgano morfológico donde se realiza la interacción'
 	)
 
@@ -275,7 +294,7 @@ with st.form(
 pretty_data = st.empty()
 
 if len(st.session_state.errors) > 0:
-	st.session_state.errors = "# Error\n\n#" + st.session_state.errors
+	st.session_state.errors = "# Error\n\n" + st.session_state.errors
 	st.info(st.session_state.errors)
 
 
